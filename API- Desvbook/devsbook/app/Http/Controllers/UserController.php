@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\user;
+use Image;
 
 class UserController extends Controller
 {
@@ -27,13 +28,31 @@ class UserController extends Controller
 
         $user = User::find($this->loggedUser['id']);// pegar o usuario logado
 
+        if($name){
+            $user->name = $name;
+        }
+
+        if($birthdate){
+           $user->birthdate = $birthdate;
+            }
+
+
+
+        if($city){
+            $user->city = $city;
+        }
+
+        if($work){
+            $user->work = $work;
+        }
+
         if($email){
             if($email != $user->email){
                 $emailExists  = User::where('email', $email)->count();
                 if($emailExists === 0){
                     $user->email = $email;
                 }else{
-                    return reponse()->json(['message'=> 'E-mail ja existende na DB'],401);
+                    return response()->json(['message'=> 'E-mail ja existende na DB'],401);
                 }
 
             }
@@ -51,6 +70,40 @@ class UserController extends Controller
 
         $user->save();
         return response()->json(['message'=>'usuario alterado com sussesso'],200);
+    }
+
+    public function updateAvatar(Request $request){
+        $array = ['error'=>''];
+        $typesImage = ['image/jpg', 'image/jpeg', 'image/png'];
+
+        $image = $request->file('avatar');
+
+        if($image){
+            if(in_array($image->getClientMimeType(), $typesImage)){
+                $filename = md5(time().rand(0,9999)).'.jpg';
+
+                $destPath = public_path('/media/avatar');
+
+                $img = Image::make($image->path())
+                ->fit(200,200)
+                ->save($destPath.'/'.$filename);// criar a imagem
+
+                $user = User::find($this->loggedUser['id']);// pegar o usuario logado
+                $user->avatar = $filename;
+                $user->save();
+
+                $array['url']= url('/media/avatar/'.$filename);
+
+
+
+
+            }else{
+                $array['error'] = 'Arquivo não suportado';            }
+        }else{
+            $array['error'] = 'Arquivo não encontrado!';
+        }
+
+        return $array;
     }
 
 
