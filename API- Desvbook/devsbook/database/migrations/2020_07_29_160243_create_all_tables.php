@@ -23,7 +23,7 @@ class CreateAllTables extends Migration
             $table->string('work',100)->nullable();
             $table->string('avatar',100)->default('default.jpg');
             $table->string('cover',100)->default('cover.jpg');
-            $table->string('token',200)->nullabre();
+            $table->string('token',200)->nullable();
         });
 
         Schema::create('userrelations', function (Blueprint $table) {
@@ -33,7 +33,7 @@ class CreateAllTables extends Migration
 
         });
 
-        Schema::create('post', function (Blueprint $table) {
+        Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->integer('id_user');
             $table->string('type',20);
